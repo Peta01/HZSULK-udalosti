@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HZSULK Events",
+        "description": "Nastavení integrace HZSULK Events"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "hzsulk_fires": {
+        "name": "Požáry"
+      },
+      "hzsulk_accidents": {
+        "name": "Dopravní nehody"
+      },
+      "hzsulk_hazmat": {
+        "name": "Únik nebezpečných látek"
+      },
+      "hzsulk_technical_help": {
+        "name": "Technická pomoc"
+      },
+      "hzsulk_rescues": {
+        "name": "Záchrana osob a zvířat"
+      },
+      "hzsulk_false_alarms": {
+        "name": "Falešné poplachy"
+      },
+      "hzsulk_other": {
+        "name": "Ostatní"
+      },
+      "hzsulk_total": {
+        "name": "Celkem incidentů"
+      },
+      "hzsulk_last_update": {
+        "name": "Poslední aktualizace"
+      }
+    },
+    "binary_sensor": {
+      "hzsulk_active_incidents": {
+        "name": "Aktivní incidenty"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nastavení HZSULK Events"
+      }
+    }
+  }
+}
