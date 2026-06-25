@@ -7,19 +7,7 @@ a projekt se řídí [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
-- V1 MVP s agregovanými počty incidentů po typech
-- Binary sensor pro detekci aktivních incidentů
-- 60-sekundové obnovování dat
-- GitHub Actions workflow pro linting
-
-### Changed
-
-### Fixed
-
-### Removed
-
-## [1.0.0] - 2026-06-24
+## [1.0.0] - 2026-06-25
 
 ### Added
 - Počty incidentů: Požáry, dopravní nehody, technická pomoc, záchrana osob, hazmat, falešné poplachy
