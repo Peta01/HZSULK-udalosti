@@ -44,10 +44,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti"
-Documentation = "https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti/wiki"
-Repository = "https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti.git"
-"Bug Tracker" = "https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti/issues"
+Homepage = "https://github.com/Peta01/HZSULK-udalosti"
+Documentation = "https://github.com/Peta01/HZSULK-udalosti/wiki"
+Repository = "https://github.com/Peta01/HZSULK-udalosti.git"
+"Bug Tracker" = "https://github.com/Peta01/HZSULK-udalosti/issues"
 
 [tool.setuptools]
 packages = ["custom_components.hzsulk_events"]

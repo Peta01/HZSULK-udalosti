@@ -22,34 +22,17 @@ Data pocházejí z veřejného API webu [HZSULK](https://udalosti.hzsulk.cz/).
 - Python 3.9+
 - aiohttp 3.8.0+
 
-## 📦 Instalace
+## 📦 Instalace přes HACS
 
-### Manuálně
+1. Otevři HACS v Home Assistant.
+2. Přejdi do **Integrations**.
+3. Zvol **Custom repositories**.
+4. Přidej tento repozitář jako **Integration**.
+5. Nainstaluj **HZSULK Events**.
+6. Restartuj Home Assistant.
+7. V **Settings → Devices & services** přidej integraci **HZSULK Events**.
 
-1. Klonuj repository:
-   ```bash
-   git clone https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti.git
-   cd HZSULK-udalosti
-   ```
-
-2. Zkopíruj integraci do Home Assistant:
-   ```bash
-   cp -r custom_components/hzsulk_events ~/.homeassistant/custom_components/
-   ```
-
-3. Restartuj Home Assistant
-
-4. Přidej integraci:
-   - Jdi do **Settings → Devices & Services**
-   - Klikni na **Create Automation**
-   - Hledej **HZSULK Events**
-   - Klikni **Create Entry**
-
-### Přes HACS (plánováno)
-
-```
-HACS → Integrations → Explore & Download Repositories → HZSULK Events
-```
+Pokud ještě HACS nemáš, nainstaluj ho nejdřív podle oficiální dokumentace HACS.
 
 ## 🔌 Dostupné Entity
 
@@ -154,7 +137,7 @@ Tato integrace není oficiálně součástí Home Assistant nebo HZSULK. Údaje 
 
 ## 🆘 Podpora
 
-Máš problém? Otevři [issue na GitHubu](https://github.com/tvoje-uzivatelske-jmeno/HZSULK-udalosti/issues).
+Máš problém? Otevři [issue na GitHubu](https://github.com/Peta01/HZSULK-udalosti/issues).
 
 ---
 
