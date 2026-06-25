@@ -1,6 +1,8 @@
 """Sensors pro HZSULK Events."""
 
 import logging
+from datetime import datetime
+
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -42,6 +44,7 @@ class HZSULKSensorBase(CoordinatorEntity, SensorEntity):
     """Base class for HZSULK sensors."""
 
     _attr_attribution = "Data from HZSULK (udalosti.hzsulk.cz)"
+    _attr_native_unit_of_measurement = "events"
 
     def __init__(
         self,
@@ -56,7 +59,6 @@ class HZSULKSensorBase(CoordinatorEntity, SensorEntity):
         self._key = key
         self._attr_name = name
         self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_{key}"
-        self._attr_device_class = SensorDeviceClass.GAUGE
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -64,7 +66,7 @@ class HZSULKSensorBase(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
     @property
-    def state(self):
+    def native_value(self):
         """Return the state."""
         if self.coordinator.data is None:
             return None
@@ -154,8 +156,19 @@ class HZSULKLastUpdateSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
     @property
-    def state(self):
+    def native_value(self):
         """Return the state."""
         if self.coordinator.data is None:
             return None
-        return self.coordinator.data.get("last_update")
+
+        value = self.coordinator.data.get("last_update")
+        if not value:
+            return None
+
+        if isinstance(value, datetime):
+            return value
+
+        try:
+            return datetime.fromisoformat(value)
+        except ValueError:
+            return None

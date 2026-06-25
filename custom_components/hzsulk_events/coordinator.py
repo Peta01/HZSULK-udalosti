@@ -1,11 +1,11 @@
 """Coordinator pro HZSULK Events - stahování dat z API."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 import logging
 from typing import Any
 
-import aiohttp
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -51,43 +51,32 @@ class HZSULKDataUpdateCoordinator(DataUpdateCoordinator):
     async def _fetch_events(self) -> list[dict]:
         """Stáhni events z API."""
         # Časový rozsah: poslednich 24 hodin
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         time_from = now - timedelta(hours=DEFAULT_HOURS_LOOKBACK)
 
-        # ISO 8601 format
-        cas_od = time_from.isoformat() + "Z"
-        cas_do = now.isoformat() + "Z"
+        # API chce UTC čas s "Z" suffixem
+        cas_od = time_from.isoformat().replace("+00:00", "Z")
+        cas_do = now.isoformat().replace("+00:00", "Z")
 
-        # Vytvář URL s parametry
-        # stavIds mají být vícekrát
-        url = API_BASE_URL
-        query_parts = [
-            f"casOd={cas_od}",
-            f"casDo={cas_do}",
-            f"krajId={DEFAULT_REGION_ID}",
+        params: list[tuple[str, str | int]] = [
+            ("casOd", cas_od),
+            ("casDo", cas_do),
+            ("krajId", DEFAULT_REGION_ID),
         ]
-
-        # Přidej stavIds
-        for stav_id in DEFAULT_STATUS_IDS:
-            query_parts.append(f"stavIds={stav_id}")
-
-        query_string = "&".join(query_parts)
-        full_url = f"{url}?{query_string}"
-
-        _LOGGER.debug(f"API request: {full_url}")
+        params.extend(("stavIds", stav_id) for stav_id in DEFAULT_STATUS_IDS)
 
         # Fetch z API
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(full_url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        _LOGGER.debug(f"Staženo {len(data)} eventů z HZSULK API")
-                        return data
-                    else:
-                        raise UpdateFailed(f"API vrátilo status {resp.status}")
-            except aiohttp.ClientError as err:
-                raise UpdateFailed(f"Chyba v komunikaci s API: {err}") from err
+        session = async_get_clientsession(self.hass)
+        try:
+            async with session.get(API_BASE_URL, params=params, timeout=10) as resp:
+                if resp.status != 200:
+                    raise UpdateFailed(f"API vrátilo status {resp.status}")
+
+                data = await resp.json()
+                _LOGGER.debug("Staženo %s eventů z HZSULK API", len(data))
+                return data
+        except Exception as err:
+            raise UpdateFailed(f"Chyba v komunikaci s API: {err}") from err
 
     def _process_events(self, events: list[dict]) -> dict[str, Any]:
         """Zpracuj raw events do agregovaného formátu."""
@@ -123,9 +112,14 @@ class HZSULKDataUpdateCoordinator(DataUpdateCoordinator):
 
         # Přidej raw events
         counts["events"] = events
-        counts["last_update"] = datetime.utcnow().isoformat()
+        counts["last_update"] = datetime.now(UTC).isoformat()
         counts["has_active"] = counts["total"] > 0
 
-        _LOGGER.debug(f"Zpracovano: Požáry={counts['fires']}, Nehody={counts['accidents']}, Technická={counts['technical_help']}")
+        _LOGGER.debug(
+            "Zpracovano: Pozary=%s, Nehody=%s, Technicka=%s",
+            counts["fires"],
+            counts["accidents"],
+            counts["technical_help"],
+        )
 
         return counts
