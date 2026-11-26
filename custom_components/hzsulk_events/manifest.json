@@ -9,7 +9,7 @@
   "requirements": [
     "aiohttp>=3.8.0"
   ],
-  "version": "2.0.0",
+  "version": "2.1.0",
   "homeassistant": "2024.12.0",
   "issue_tracker": "https://github.com/Peta01/HZSULK-udalosti/issues",
   "iot_class": "cloud_polling"

@@ -14,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import HZSULKConfigEntry
-from .const import ATTRIBUTION, DEFAULT_ICON, DOMAIN, TYPE_ICONS, WEB_URL
+from .const import ATTRIBUTION, DEFAULT_ICON, DOMAIN, SUBTYPE_ICONS, TYPE_ICONS, WEB_URL
 from .coordinator import HZSEvent, HZSULKDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -107,7 +107,9 @@ class HZSULKEventEntity(CoordinatorEntity[HZSULKDataUpdateCoordinator], Geolocat
     def _apply(self) -> None:
         event = self._event
         self._attr_name = event.title
-        self._attr_icon = TYPE_ICONS.get(event.type_id or 0, DEFAULT_ICON)
+        self._attr_icon = SUBTYPE_ICONS.get(event.subtype_id or 0) or TYPE_ICONS.get(
+            event.type_id or 0, DEFAULT_ICON
+        )
         self._attr_source = SOURCE
         self._attr_latitude = event.latitude
         self._attr_longitude = event.longitude
@@ -120,19 +122,18 @@ class HZSULKEventEntity(CoordinatorEntity[HZSULKDataUpdateCoordinator], Geolocat
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         event = self._event
-        units: list[str] = []
+        # Technika seskupená podle jednotek: {"HS Šluknov": ["CAS < 30", "2× DA"]}
+        by_unit: dict[str, list[str]] = {}
         for item in event.units:
-            name = item.get("jednotka")
-            if name and name not in units:
-                units.append(name)
+            unit = item.get("jednotka") or "?"
+            vehicles_of_unit = by_unit.setdefault(unit, [])
+            vehicle = item.get("typ")
+            count = item.get("pocet") or 0
+            if vehicle and count > 0:
+                vehicles_of_unit.append(f"{count}× {vehicle}" if count > 1 else vehicle)
+        units = list(by_unit)
         vehicles = [
-            {
-                "unit": item.get("jednotka"),
-                "vehicle": item.get("typ"),
-                "count": item.get("pocet"),
-                "dispatched": item.get("casOhlaseni"),
-            }
-            for item in event.units
+            f"{unit}: {', '.join(items)}" if items else unit for unit, items in by_unit.items()
         ]
         return {
             "event_id": event.id,

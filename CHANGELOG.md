@@ -7,6 +7,13 @@ a projekt se řídí [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-26
+
+### Changed
+- Atribut `vehicles` je čitelný seznam techniky po jednotkách (dříve strukturovaná data)
+- Ikony událostí podle podtypu (strom, výtah, popelnice, sanitka…)
+- Příklad karty Mapa s ikonami místo zkratek
+
 ## [2.0.0] - 2026-11-26
 
 ### Changed

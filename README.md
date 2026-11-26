@@ -36,7 +36,7 @@ Nastavení jde později změnit tlačítkem **Konfigurovat** u integrace.
 
 ### `geo_location.*` – jednotlivé události
 
-Název např. `Požár – nízké budovy, Klášterec nad Ohří`, stav = vzdálenost od středu v km.
+Název např. `Požár – nízké budovy, Klášterec nad Ohří`, stav = vzdálenost od středu v km. Ikona odpovídá podtypu (strom, výtah, popelnice, sanitka…).
 
 | Atribut | Popis |
 |---|---|
@@ -47,7 +47,7 @@ Název např. `Požár – nízké budovy, Klášterec nad Ohří`, stav = vzdá
 | `description` | Popis pro média (nemusí být vyplněn) |
 | `address`, `municipality`, `municipality_part`, `street`, `road`, `district`, `orp` | Místo |
 | `units` | Seznam zasahujících jednotek |
-| `vehicles` | Technika: `unit`, `vehicle`, `count`, `dispatched` |
+| `vehicles` | Technika po jednotkách, např. `HS Šluknov: cisternová automobilová stříkačka < 30, 2× dopravní automobil` |
 | `latitude`, `longitude`, `source` | Poloha (`source: hzsulk_events`) |
 
 Entity vznikají a zanikají automaticky podle aktuálních dat.
@@ -61,7 +61,8 @@ Zapnutý, pokud v okruhu probíhá alespoň jedna událost. Atributy: `active_co
 ```yaml
 type: map
 geo_location_sources:
-  - hzsulk_events
+  - source: hzsulk_events
+    label_mode: icon
 entities:
   - zone.home
 hours_to_show: 0
@@ -78,7 +79,8 @@ content: >
   **{{ s.name }}** – {{ s.state }} km{{ ' 🔴' if s.attributes.active }}
   {{ as_timestamp(s.attributes.reported) | timestamp_custom('%d.%m. %H:%M') }} · {{ s.attributes.status }}
   {% if s.attributes.description %}_{{ s.attributes.description }}_{% endif %}
-  {% if s.attributes.units %}Jednotky: {{ s.attributes.units | join(', ') }}{% endif %}
+  {% for v in s.attributes.vehicles %}🚒 {{ v }}
+  {% endfor %}
 
   {% else %}
   V okolí nejsou žádné události.
