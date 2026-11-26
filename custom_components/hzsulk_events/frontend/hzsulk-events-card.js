@@ -8,12 +8,37 @@
  * show_home: true              # značka zóny Domov
  */
 
-const CARD_VERSION = "2.2.0";
+const CARD_VERSION = "2.2.1";
 const SOURCE = "hzsulk_events";
 const BASE = new URL(".", import.meta.url).pathname;
-const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+// Dlaždice přes proxy jádra HA (integrace map_tiles, HA 2026+), jinak přímo z OSM.
+// OSM vyžaduje hlavičku Referer, kterou stránka HA (referrer same-origin) jinak neposílá.
+const PROXY_TILE_URL = "/api/map_tiles/raster/{z}/{x}/{y}.png?token={token}";
+const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TOKEN_REFRESH_MS = 20 * 60 * 1000; // jádro token mění každých 30 min
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · data HZS ÚK';
+
+let tileToken;
+let tokenFetchedAt = 0;
+let tokenPromise;
+const getTileToken = (hass, force = false) => {
+  if (!hass?.connection) return Promise.resolve(undefined);
+  const fresh = tileToken && Date.now() - tokenFetchedAt < TOKEN_REFRESH_MS;
+  if (fresh && !force) return Promise.resolve(tileToken);
+  tokenPromise ??= hass.connection
+    .sendMessagePromise({ type: "map_tiles/access_token" })
+    .then((result) => {
+      tileToken = result?.token;
+      tokenFetchedAt = Date.now();
+      return tileToken;
+    })
+    .catch(() => undefined)
+    .finally(() => {
+      tokenPromise = undefined;
+    });
+  return tokenPromise;
+};
 
 let leafletPromise;
 const loadLeaflet = () => (leafletPromise ??= import(`${BASE}leaflet/leaflet-src.esm.js`));
@@ -54,7 +79,7 @@ class HzsulkEventsCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     const dark = Boolean(hass.themes?.darkMode);
-    if (dark !== this._dark) {
+    if (dark !== this._dark || !this._tiles) {
       this._dark = dark;
       this._setTiles();
     }
@@ -88,11 +113,21 @@ class HzsulkEventsCard extends HTMLElement {
   connectedCallback() {
     this._build();
     if (this._map) setTimeout(() => this._map.invalidateSize(), 0);
+    if (this._tiles?.options.token && !this._tokenTimer) {
+      this._refreshToken(false);
+      this._tokenTimer = setInterval(() => this._refreshToken(false), TOKEN_REFRESH_MS);
+    }
+    if (this._map && !this._resizeObserver) {
+      this._resizeObserver = new ResizeObserver(() => this._map?.invalidateSize());
+      this._resizeObserver.observe(this.shadowRoot.getElementById("map"));
+    }
   }
 
   disconnectedCallback() {
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
+    clearInterval(this._tokenTimer);
+    this._tokenTimer = undefined;
   }
 
   // ---------- DOM ----------
@@ -210,13 +245,43 @@ class HzsulkEventsCard extends HTMLElement {
     this._renderMarkers();
   }
 
-  _setTiles() {
+  async _setTiles() {
     const container = this.shadowRoot.getElementById("map");
     container?.classList.toggle("dark", Boolean(this._dark));
-    if (!this._map || !this._L || this._tiles) return;
-    this._tiles = this._L
-      .tileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 19 })
-      .addTo(this._map);
+    if (!this._map || !this._L || this._tiles || this._tilesPending || !this._hass) return;
+    this._tilesPending = true;
+    const token = await getTileToken(this._hass);
+    this._tilesPending = false;
+    if (!this._map || this._tiles) return;
+
+    if (token) {
+      this._tiles = this._L.tileLayer(PROXY_TILE_URL, {
+        attribution: ATTRIBUTION,
+        maxZoom: 19,
+        token,
+      });
+      // Token se v jádru střídá; při odmítnutí si vyžádej nový (nejvýš 1× za minutu)
+      this._tiles.on("tileerror", () => this._refreshToken(true));
+      this._tokenTimer = setInterval(() => this._refreshToken(false), TOKEN_REFRESH_MS);
+    } else {
+      this._tiles = this._L.tileLayer(OSM_TILE_URL, {
+        attribution: ATTRIBUTION,
+        maxZoom: 19,
+        referrerPolicy: "strict-origin-when-cross-origin",
+      });
+    }
+    this._tiles.addTo(this._map);
+  }
+
+  async _refreshToken(afterError) {
+    const now = Date.now();
+    if (afterError && now - (this._lastTokenRetry || 0) < 60000) return;
+    if (afterError) this._lastTokenRetry = now;
+    const token = await getTileToken(this._hass, true);
+    if (token && this._tiles && token !== this._tiles.options.token) {
+      this._tiles.options.token = token;
+      if (afterError) this._tiles.redraw();
+    }
   }
 
   // ---------- mapa ----------

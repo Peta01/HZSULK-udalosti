@@ -69,7 +69,7 @@ list_height: 400       # max. výška seznamu v px, 0 = bez omezení
 show_home: true        # značka zóny Domov
 ```
 
-Podkladová mapa: © OpenStreetMap.
+Podkladová mapa: © OpenStreetMap, načítaná přes proxy Home Assistantu (stejně jako vestavěná karta Mapa).
 
 ## 🗺️ Standardní karta Mapa
 

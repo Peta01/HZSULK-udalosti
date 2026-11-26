@@ -7,6 +7,11 @@ a projekt se řídí [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-11-26
+
+### Fixed
+- Karta: podkladová mapa se v HA nezobrazovala (OSM blokuje požadavky bez hlavičky Referer). Dlaždice se nově berou přes proxy jádra HA (`/api/map_tiles`, stejný zdroj jako vestavěná karta Mapa); na starších verzích HA přímo z OSM se správnou politikou Referer.
+
 ## [2.2.0] - 2026-11-26
 
 ### Added
