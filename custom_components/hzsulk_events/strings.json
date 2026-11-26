@@ -2,51 +2,44 @@
   "config": {
     "step": {
       "user": {
-        "title": "HZSULK Events",
-        "description": "Nastavení integrace HZSULK Events"
-      }
-    }
-  },
-  "entity": {
-    "sensor": {
-      "hzsulk_fires": {
-        "name": "Požáry"
-      },
-      "hzsulk_accidents": {
-        "name": "Dopravní nehody"
-      },
-      "hzsulk_hazmat": {
-        "name": "Únik nebezpečných látek"
-      },
-      "hzsulk_technical_help": {
-        "name": "Technická pomoc"
-      },
-      "hzsulk_rescues": {
-        "name": "Záchrana osob a zvířat"
-      },
-      "hzsulk_false_alarms": {
-        "name": "Falešné poplachy"
-      },
-      "hzsulk_other": {
-        "name": "Ostatní"
-      },
-      "hzsulk_total": {
-        "name": "Celkem incidentů"
-      },
-      "hzsulk_last_update": {
-        "name": "Poslední aktualizace"
+        "title": "Zásahy HZS Ústeckého kraje",
+        "description": "Sledujte jednotlivé zásahy hasičů v okruhu kolem zvoleného místa. Data: udalosti.hzsulk.cz",
+        "data": {
+          "name": "Název místa",
+          "location": "Střed a okruh sledování",
+          "hours": "Časové okno pro ukončené události",
+          "only_active": "Zobrazovat jen probíhající události"
+        },
+        "data_description": {
+          "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+        }
       }
     },
-    "binary_sensor": {
-      "hzsulk_active_incidents": {
-        "name": "Aktivní incidenty"
-      }
+    "abort": {
+      "already_configured": "Pro toto místo je integrace už nastavená."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Nastavení HZSULK Events"
+        "title": "Nastavení sledování",
+        "data": {
+          "location": "Střed a okruh sledování",
+          "hours": "Časové okno pro ukončené události",
+          "only_active": "Zobrazovat jen probíhající události"
+        },
+        "data_description": {
+          "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_incident": {
+        "name": "Probíhá zásah v okolí"
       }
     }
   }

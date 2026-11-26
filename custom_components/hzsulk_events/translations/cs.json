@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zásahy HZS Ústeckého kraje",
+        "description": "Sledujte jednotlivé zásahy hasičů v okruhu kolem zvoleného místa. Data: udalosti.hzsulk.cz",
+        "data": {
+          "name": "Název místa",
+          "location": "Střed a okruh sledování",
+          "hours": "Časové okno pro ukončené události",
+          "only_active": "Zobrazovat jen probíhající události"
+        },
+        "data_description": {
+          "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Pro toto místo je integrace už nastavená."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nastavení sledování",
+        "data": {
+          "location": "Střed a okruh sledování",
+          "hours": "Časové okno pro ukončené události",
+          "only_active": "Zobrazovat jen probíhající události"
+        },
+        "data_description": {
+          "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_incident": {
+        "name": "Probíhá zásah v okolí"
+      }
+    }
+  }
+}

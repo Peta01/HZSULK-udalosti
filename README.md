@@ -1,119 +1,136 @@
 # HZSULK Events - Home Assistant Integration
 
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.6%2B-blue)
+![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.12%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Home Assistant custom integration pro zobrazení informací o hasiči a záchranných akcích v Ústeckém kraji v reálném čase.
+Home Assistant custom integrace, která zobrazuje **jednotlivé zásahy hasičů v Ústeckém kraji** v okruhu kolem zvoleného místa. U každé události ukáže typ, stav, popis, adresu, polohu na mapě a zasahující jednotky s technikou.
 
-Data pocházejí z veřejného API webu [HZSULK](https://udalosti.hzsulk.cz/).
+Data pocházejí z veřejného API webu [udalosti.hzsulk.cz](https://udalosti.hzsulk.cz/) (HZS Ústeckého kraje).
 
-## 🚀 Funkce (V1 MVP)
+## 🚀 Funkce
 
-- **Agregované počty incidentů** – Požáry, dopravní nehody, technická pomoc, záchrana osob, únik nebezpečných látek, falešné poplachy, ostatní
-- **Celkový počet incidentů** – Suma všech aktivních akcí
-- **Detekce aktivních incidentů** – Binary sensor pro automatizace
-- **Poslední aktualizace** – Timestamp poslední synchronizace
-- **Automatické obnovování** – Každých 60 sekund
+- **Každá událost jako entita na mapě** (`geo_location`): zobrazí se na kartě Mapa, stav entity je vzdálenost v km
+- **Podrobnosti v atributech**: typ a podtyp, stav, popis pro média, adresa, čas ohlášení, zasahující jednotky a technika
+- **Filtr podle okruhu** kolem zóny Domov nebo libovolného bodu na mapě
+- **Binární senzor „Probíhá zásah v okolí“** pro automatizace
+- Ukončené události zmizí po uplynutí časového okna (výchozí 24 h), probíhající se zobrazují vždy
+- Aktualizace každých 60 s; jednotky se u probíhajících událostí obnovují každých 5 minut
+
+Integraci lze přidat vícekrát, např. pro domov a chalupu.
 
 ## 📋 Požadavky
 
-- Home Assistant 2024.6 nebo novější
-- Python 3.9+
-- aiohttp 3.8.0+
+- Home Assistant 2024.12 nebo novější
 
 ## 📦 Instalace přes HACS
 
 1. Otevři HACS v Home Assistant.
-2. Přejdi do **Integrations**.
-3. Zvol **Custom repositories**.
-4. Přidej tento repozitář jako **Integration**.
-5. Nainstaluj **HZSULK Events**.
-6. Restartuj Home Assistant.
-7. V **Settings → Devices & services** přidej integraci **HZSULK Events**.
+2. Zvol **Custom repositories** a přidej tento repozitář jako **Integration**.
+3. Nainstaluj **HZSULK Events** a restartuj Home Assistant.
+4. V **Nastavení → Zařízení a služby** přidej integraci **HZSULK Events**.
+5. Zvol název místa, střed a okruh na mapě, časové okno a zda zobrazovat jen probíhající události.
 
-Pokud ještě HACS nemáš, nainstaluj ho nejdřív podle oficiální dokumentace HACS.
+Nastavení jde později změnit tlačítkem **Konfigurovat** u integrace.
 
-## 🔌 Dostupné Entity
+## 🔌 Entity
 
-### Sensors (počty incidentů)
+### `geo_location.*` – jednotlivé události
 
-- `sensor.hzsulk_events_fires` – Požáry
-- `sensor.hzsulk_events_accidents` – Dopravní nehody
-- `sensor.hzsulk_events_hazmat` – Únik nebezpečných látek
-- `sensor.hzsulk_events_technical_help` – Technická pomoc
-- `sensor.hzsulk_events_rescues` – Záchrana osob a zvířat
-- `sensor.hzsulk_events_false_alarms` – Falešné poplachy
-- `sensor.hzsulk_events_other` – Ostatní incidenty
-- `sensor.hzsulk_events_total` – Celkem incidentů
-- `sensor.hzsulk_events_last_update` – Poslední aktualizace
+Název např. `Požár – nízké budovy, Klášterec nad Ohří`, stav = vzdálenost od středu v km.
 
-### Binary Sensors
+| Atribut | Popis |
+|---|---|
+| `event_id` | ID události v systému HZS |
+| `reported` | Čas ohlášení |
+| `type`, `subtype` | Typ a podtyp (např. POŽÁR / NÍZKÉ BUDOVY) |
+| `status`, `active` | Stav (např. „Otevřená, SaP na místě“) a zda událost probíhá |
+| `description` | Popis pro média (nemusí být vyplněn) |
+| `address`, `municipality`, `municipality_part`, `street`, `road`, `district`, `orp` | Místo |
+| `units` | Seznam zasahujících jednotek |
+| `vehicles` | Technika: `unit`, `vehicle`, `count`, `dispatched` |
+| `latitude`, `longitude`, `source` | Poloha (`source: hzsulk_events`) |
 
-- `binary_sensor.hzsulk_events_active_incidents` – Jsou aktivní incidenty?
+Entity vznikají a zanikají automaticky podle aktuálních dat.
 
-## 🎨 Příklad v automacích
+### `binary_sensor.*_probiha_zasah_v_okoli`
+
+Zapnutý, pokud v okruhu probíhá alespoň jedna událost. Atributy: `active_count`, `events_count`, `radius_km`, `active_events` (seřazené podle vzdálenosti).
+
+## 🗺️ Karta Mapa
 
 ```yaml
-# Oznamení, když dojde k požáru
-automation:
-  - alias: "Upozornění na požár"
-    trigger:
-      platform: state
-      entity_id: sensor.hzsulk_events_fires
-      from: "0"
-    action:
-      service: notify.pushbullet
-      data:
-        message: "Nový požár v Ústeckém kraji!"
-
-# Upozornění na aktivní incidenty
-automation:
-  - alias: "Aktivní incidenty"
-    trigger:
-      platform: state
-      entity_id: binary_sensor.hzsulk_events_active_incidents
-      to: "on"
-    action:
-      service: logbook.log
-      data:
-        name: "Hasiči v akci"
-        message: "Detekován nový incident"
+type: map
+geo_location_sources:
+  - hzsulk_events
+entities:
+  - zone.home
+hours_to_show: 0
 ```
+
+## 📝 Seznam událostí (Markdown karta)
+
+```yaml
+type: markdown
+content: >
+  {% for s in states.geo_location
+       | selectattr('attributes.source', 'eq', 'hzsulk_events')
+       | sort(attribute='attributes.reported', reverse=true) %}
+  **{{ s.name }}** – {{ s.state }} km{{ ' 🔴' if s.attributes.active }}
+  {{ as_timestamp(s.attributes.reported) | timestamp_custom('%d.%m. %H:%M') }} · {{ s.attributes.status }}
+  {% if s.attributes.description %}_{{ s.attributes.description }}_{% endif %}
+  {% if s.attributes.units %}Jednotky: {{ s.attributes.units | join(', ') }}{% endif %}
+
+  {% else %}
+  V okolí nejsou žádné události.
+  {% endfor %}
+```
+
+## 🎨 Automatizace: upozornění na nový zásah v okolí
+
+```yaml
+automation:
+  - alias: "Zásah hasičů do 5 km"
+    triggers:
+      - trigger: geo_location
+        source: hzsulk_events
+        zone: zone.home
+        event: enter
+    actions:
+      - action: notify.mobile_app_telefon
+        data:
+          title: "🚒 {{ trigger.to_state.name }}"
+          message: >
+            {{ trigger.to_state.state }} km ·
+            {{ trigger.to_state.attributes.description or trigger.to_state.attributes.status }}
+```
+
+Trigger `geo_location` reaguje na události uvnitř zóny (např. `zone.home` s poloměrem 5 km). Okruh integrace může být větší, třeba pro mapu.
 
 ## 🏗️ Architektura
 
 ```
 custom_components/hzsulk_events/
-├── __init__.py           # Integration entry point
-├── const.py              # Konstanty a mapování
-├── coordinator.py        # API coordinator
-├── config_flow.py        # Setup UI
-├── sensor.py             # Sensor entity definitions
-├── binary_sensor.py      # Binary sensor entity
-├── manifest.json         # Integration metadata
-├── strings.json          # Localization
-└── README.md             # Integration documentation
+├── __init__.py       # Setup, migrace z verze 1
+├── api.py            # Klient API udalosti.hzsulk.cz
+├── coordinator.py    # Stahování, filtr okruhu, doplnění jednotek
+├── geo.py            # Převod S-JTSK → WGS84
+├── geo_location.py   # Entity jednotlivých událostí
+├── binary_sensor.py  # Probíhá zásah v okolí
+├── config_flow.py    # Nastavení a možnosti
+└── translations/     # cs, en
 ```
 
-## 🔄 API Reference
+## 🔄 API
 
-**Endpoint**: `https://udalosti.hzsulk.cz/api/`
+Základ: `https://udalosti.hzsulk.cz/api/`
 
-**V1 Parametry**:
-- `casOd` – ISO 8601 UTC (od kdy)
-- `casDo` – ISO 8601 UTC (do kdy)
-- `krajId` – ID kraje (V1: 60 = Ústecký)
-- `stavIds` – Stavy incidentů (query param, vícekrát)
+| Endpoint | Obsah |
+|---|---|
+| `?casOd=…&casDo=…&krajId=60&stavIds=…` | Seznam událostí (čas `casOhlaseni` je v místním čase) |
+| `udalosti/{id}/technika` | Zasahující jednotky a technika |
+| `typy`, `podtypy`, `stavy`, `okresy` | Číselníky |
 
-## 🚧 Budoucí Rozšíření (V2+)
-
-- [ ] Konfigurovatelný kraj/okres
-- [ ] Filtrace dat na frontendu
-- [ ] Podrobné informace o jednotlivých incidentech
-- [ ] WebSocket support pro real-time updates
-- [ ] HACS integrace
-- [ ] Jednotky a složitější filtrování
+Souřadnice `gis1`/`gis2` jsou v S-JTSK (Y, X) a integrace je přepočítává na WGS84.
 
 ## 🤝 Přispívání
 

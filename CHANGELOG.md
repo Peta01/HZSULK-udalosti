@@ -7,6 +7,25 @@ a projekt se řídí [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-26
+
+### Changed
+- Integrace přepracována: místo statistik zobrazuje jednotlivé události jako `geo_location` entity (mapa)
+- Filtr podle okruhu kolem zvoleného místa (výchozí zóna Domov, 20 km), nastavitelné časové okno a režim „jen probíhající“
+- Názvy typů, podtypů a stavů z číselníků API
+- Čas ohlášení se správně interpretuje v místním čase (Europe/Prague)
+- Minimální verze Home Assistant 2024.12
+
+### Added
+- Zasahující jednotky a technika (`/api/udalosti/{id}/technika`)
+- Převod souřadnic S-JTSK → WGS84
+- Binární senzor „Probíhá zásah v okolí“
+- Možnosti (options flow) a podpora více míst
+- Automatická migrace z verze 1
+
+### Removed
+- Statistické senzory (počty podle typu, celkem, poslední aktualizace)
+
 ## [1.0.0] - 2026-06-25
 
 ### Added

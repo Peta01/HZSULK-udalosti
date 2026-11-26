@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fire & rescue incidents (HZS Ústí Region)",
+        "description": "Track individual fire brigade incidents within a radius around a chosen place. Data: udalosti.hzsulk.cz",
+        "data": {
+          "name": "Place name",
+          "location": "Center and radius",
+          "hours": "Time window for finished incidents",
+          "only_active": "Show only ongoing incidents"
+        },
+        "data_description": {
+          "hours": "Finished incidents older than this are hidden. Ongoing incidents are always shown.",
+          "only_active": "Finished incidents are not shown at all."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This place is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tracking settings",
+        "data": {
+          "location": "Center and radius",
+          "hours": "Time window for finished incidents",
+          "only_active": "Show only ongoing incidents"
+        },
+        "data_description": {
+          "hours": "Finished incidents older than this are hidden. Ongoing incidents are always shown.",
+          "only_active": "Finished incidents are not shown at all."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_incident": {
+        "name": "Ongoing incident nearby"
+      }
+    }
+  }
+}
