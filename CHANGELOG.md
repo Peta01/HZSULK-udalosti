@@ -7,6 +7,13 @@ a projekt se řídí [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-26
+
+### Added
+- Lovelace karta `custom:hzsulk-events-card` přibalená k integraci (registruje se automaticky): mapa s malými ikonami a propojený seznam – klik na ikonu zvýrazní událost v seznamu a naopak, tlačítko pro detail entity, světlý i tmavý režim
+- Volba „Celý kraj (bez omezení vzdálenosti)“
+- Leaflet 1.9.4 (BSD-2-Clause) přibalený v `frontend/leaflet`
+
 ## [2.1.0] - 2026-11-26
 
 ### Changed

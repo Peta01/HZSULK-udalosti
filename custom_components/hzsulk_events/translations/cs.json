@@ -8,11 +8,13 @@
           "name": "Název místa",
           "location": "Střed a okruh sledování",
           "hours": "Časové okno pro ukončené události",
-          "only_active": "Zobrazovat jen probíhající události"
+          "only_active": "Zobrazovat jen probíhající události",
+          "whole_region": "Celý kraj (bez omezení vzdálenosti)"
         },
         "data_description": {
           "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
-          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec.",
+          "whole_region": "Zobrazí všechny události v Ústeckém kraji. Vzdálenost od středu se dál počítá, okruh se ignoruje."
         }
       }
     },
@@ -27,11 +29,13 @@
         "data": {
           "location": "Střed a okruh sledování",
           "hours": "Časové okno pro ukončené události",
-          "only_active": "Zobrazovat jen probíhající události"
+          "only_active": "Zobrazovat jen probíhající události",
+          "whole_region": "Celý kraj (bez omezení vzdálenosti)"
         },
         "data_description": {
           "hours": "Ukončené události starší než tato doba se skryjí. Probíhající události se zobrazují vždy.",
-          "only_active": "Ukončené události se nebudou zobrazovat vůbec."
+          "only_active": "Ukončené události se nebudou zobrazovat vůbec.",
+          "whole_region": "Zobrazí všechny události v Ústeckém kraji. Vzdálenost od středu se dál počítá, okruh se ignoruje."
         }
       }
     }

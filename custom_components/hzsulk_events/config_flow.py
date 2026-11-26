@@ -14,9 +14,11 @@ from homeassistant.helpers import selector
 from .const import (
     CONF_HOURS,
     CONF_ONLY_ACTIVE,
+    CONF_WHOLE_REGION,
     DEFAULT_HOURS,
     DEFAULT_ONLY_ACTIVE,
     DEFAULT_RADIUS_KM,
+    DEFAULT_WHOLE_REGION,
     DOMAIN,
 )
 
@@ -38,6 +40,11 @@ def _schema(defaults: dict[str, Any], with_name: bool) -> vol.Schema:
             },
         )
     ] = selector.LocationSelector(selector.LocationSelectorConfig(radius=True))
+    fields[
+        vol.Required(
+            CONF_WHOLE_REGION, default=defaults.get(CONF_WHOLE_REGION, DEFAULT_WHOLE_REGION)
+        )
+    ] = selector.BooleanSelector()
     fields[vol.Required(CONF_HOURS, default=defaults.get(CONF_HOURS, DEFAULT_HOURS))] = (
         selector.NumberSelector(
             selector.NumberSelectorConfig(
@@ -61,6 +68,7 @@ def _to_settings(user_input: dict[str, Any]) -> dict[str, Any]:
         CONF_RADIUS: round(radius_m / 1000, 1),
         CONF_HOURS: int(user_input[CONF_HOURS]),
         CONF_ONLY_ACTIVE: user_input[CONF_ONLY_ACTIVE],
+        CONF_WHOLE_REGION: user_input.get(CONF_WHOLE_REGION, DEFAULT_WHOLE_REGION),
     }
 
 

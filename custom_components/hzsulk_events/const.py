@@ -7,6 +7,10 @@ DOMAIN = "hzsulk_events"
 ATTRIBUTION = "Data: HZS Ústeckého kraje (udalosti.hzsulk.cz)"
 WEB_URL = "https://udalosti.hzsulk.cz/"
 
+# Lovelace karta přibalená k integraci
+FRONTEND_URL = "/hzsulk_events_static"
+CARD_FILENAME = "hzsulk-events-card.js"
+
 # API
 API_BASE_URL = "https://udalosti.hzsulk.cz/api/"
 API_TIMEOUT = 15
@@ -16,10 +20,12 @@ TIMEZONE = "Europe/Prague"  # API vrací čas ohlášení v místním čase
 # Konfigurace
 CONF_HOURS = "hours"
 CONF_ONLY_ACTIVE = "only_active"
+CONF_WHOLE_REGION = "whole_region"
 
 DEFAULT_RADIUS_KM = 20
 DEFAULT_HOURS = 24
 DEFAULT_ONLY_ACTIVE = False
+DEFAULT_WHOLE_REGION = False
 DEFAULT_UPDATE_INTERVAL = 60  # sekundy
 
 # Probíhající události bez ohledu na časové okno sledujeme až do tohoto stáří

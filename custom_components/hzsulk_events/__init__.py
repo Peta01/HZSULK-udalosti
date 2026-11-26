@@ -3,26 +3,45 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_LATITUDE, CONF_LONGITUDE, CONF_RADIUS, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
 from .const import (
+    CARD_FILENAME,
     CONF_HOURS,
     CONF_ONLY_ACTIVE,
     DEFAULT_HOURS,
     DEFAULT_ONLY_ACTIVE,
     DEFAULT_RADIUS_KM,
+    DOMAIN,
+    FRONTEND_URL,
 )
 from .coordinator import HZSULKDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.GEO_LOCATION, Platform.BINARY_SENSOR]
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 HZSULKConfigEntry = ConfigEntry[HZSULKDataUpdateCoordinator]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Zaregistruj Lovelace kartu (custom:hzsulk-events-card)."""
+    integration = await async_get_integration(hass, DOMAIN)
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(FRONTEND_URL, str(Path(__file__).parent / "frontend"), True)]
+    )
+    add_extra_js_url(hass, f"{FRONTEND_URL}/{CARD_FILENAME}?v={integration.version}")
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: HZSULKConfigEntry) -> bool:

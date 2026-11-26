@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hzsulk-events"
-version = "2.1.0"
+version = "2.2.0"
 description = "Home Assistant integration for HZSULK (firefighter/rescue events) in Czech Republic"
 readme = "README.md"
 requires-python = ">=3.12"

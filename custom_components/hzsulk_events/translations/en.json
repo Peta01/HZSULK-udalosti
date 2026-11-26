@@ -8,11 +8,13 @@
           "name": "Place name",
           "location": "Center and radius",
           "hours": "Time window for finished incidents",
-          "only_active": "Show only ongoing incidents"
+          "only_active": "Show only ongoing incidents",
+          "whole_region": "Whole region (no distance limit)"
         },
         "data_description": {
           "hours": "Finished incidents older than this are hidden. Ongoing incidents are always shown.",
-          "only_active": "Finished incidents are not shown at all."
+          "only_active": "Finished incidents are not shown at all.",
+          "whole_region": "Shows all incidents in the Ústí Region. Distance from the center is still calculated, the radius is ignored."
         }
       }
     },
@@ -27,11 +29,13 @@
         "data": {
           "location": "Center and radius",
           "hours": "Time window for finished incidents",
-          "only_active": "Show only ongoing incidents"
+          "only_active": "Show only ongoing incidents",
+          "whole_region": "Whole region (no distance limit)"
         },
         "data_description": {
           "hours": "Finished incidents older than this are hidden. Ongoing incidents are always shown.",
-          "only_active": "Finished incidents are not shown at all."
+          "only_active": "Finished incidents are not shown at all.",
+          "whole_region": "Shows all incidents in the Ústí Region. Distance from the center is still calculated, the radius is ignored."
         }
       }
     }

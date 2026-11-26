@@ -57,7 +57,8 @@ class HZSULKActiveBinarySensor(CoordinatorEntity[HZSULKDataUpdateCoordinator], B
         return {
             "active_count": len(active),
             "events_count": len(self.coordinator.data or {}),
-            "radius_km": self.coordinator.radius_km,
+            "radius_km": None if self.coordinator.whole_region else self.coordinator.radius_km,
+            "whole_region": self.coordinator.whole_region,
             "active_events": [
                 {
                     "title": e.title,

@@ -11,7 +11,8 @@ Data pocházejí z veřejného API webu [udalosti.hzsulk.cz](https://udalosti.hz
 
 - **Každá událost jako entita na mapě** (`geo_location`): zobrazí se na kartě Mapa, stav entity je vzdálenost v km
 - **Podrobnosti v atributech**: typ a podtyp, stav, popis pro média, adresa, čas ohlášení, zasahující jednotky a technika
-- **Filtr podle okruhu** kolem zóny Domov nebo libovolného bodu na mapě
+- **Filtr podle okruhu** kolem zóny Domov nebo libovolného bodu na mapě, případně **celý kraj**
+- **Vlastní karta `custom:hzsulk-events-card`**: mapa s ikonami a propojený seznam (klik na ikonu zvýrazní událost v seznamu a naopak); registruje se automaticky
 - **Binární senzor „Probíhá zásah v okolí“** pro automatizace
 - Ukončené události zmizí po uplynutí časového okna (výchozí 24 h), probíhající se zobrazují vždy
 - Aktualizace každých 60 s; jednotky se u probíhajících událostí obnovují každých 5 minut
@@ -28,7 +29,7 @@ Integraci lze přidat vícekrát, např. pro domov a chalupu.
 2. Zvol **Custom repositories** a přidej tento repozitář jako **Integration**.
 3. Nainstaluj **HZSULK Events** a restartuj Home Assistant.
 4. V **Nastavení → Zařízení a služby** přidej integraci **HZSULK Events**.
-5. Zvol název místa, střed a okruh na mapě, časové okno a zda zobrazovat jen probíhající události.
+5. Zvol název místa, střed a okruh na mapě (nebo celý kraj), časové okno a zda zobrazovat jen probíhající události.
 
 Nastavení jde později změnit tlačítkem **Konfigurovat** u integrace.
 
@@ -56,7 +57,21 @@ Entity vznikají a zanikají automaticky podle aktuálních dat.
 
 Zapnutý, pokud v okruhu probíhá alespoň jedna událost. Atributy: `active_count`, `events_count`, `radius_km`, `active_events` (seřazené podle vzdálenosti).
 
-## 🗺️ Karta Mapa
+## 🗺️ Karta „Zásahy HZS ÚK“ (doporučeno)
+
+Integrace s sebou přináší kartu s mapou a seznamem událostí. Klik na ikonu na mapě zvýrazní událost v seznamu, klik na událost v seznamu ji ukáže na mapě, tlačítko ⓘ otevře detail entity. Nic dalšího se instalovat nemusí – po aktualizaci integrace stačí obnovit prohlížeč.
+
+```yaml
+type: custom:hzsulk-events-card
+title: Zásahy hasičů   # volitelné
+map_height: 400        # výška mapy v px
+list_height: 400       # max. výška seznamu v px, 0 = bez omezení
+show_home: true        # značka zóny Domov
+```
+
+Podkladová mapa: © OpenStreetMap.
+
+## 🗺️ Standardní karta Mapa
 
 ```yaml
 type: map

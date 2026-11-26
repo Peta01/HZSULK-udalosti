@@ -21,10 +21,12 @@ from .api import HZSULKApi, HZSULKApiError
 from .const import (
     CONF_HOURS,
     CONF_ONLY_ACTIVE,
+    CONF_WHOLE_REGION,
     DEFAULT_HOURS,
     DEFAULT_ONLY_ACTIVE,
     DEFAULT_RADIUS_KM,
     DEFAULT_UPDATE_INTERVAL,
+    DEFAULT_WHOLE_REGION,
     DOMAIN,
     FALLBACK_TYPES,
     MAX_ACTIVE_AGE_HOURS,
@@ -123,6 +125,7 @@ class HZSULKDataUpdateCoordinator(DataUpdateCoordinator[dict[int, HZSEvent]]):
         self.radius_km: float = settings.get(CONF_RADIUS, DEFAULT_RADIUS_KM)
         self.hours: int = settings.get(CONF_HOURS, DEFAULT_HOURS)
         self.only_active: bool = settings.get(CONF_ONLY_ACTIVE, DEFAULT_ONLY_ACTIVE)
+        self.whole_region: bool = settings.get(CONF_WHOLE_REGION, DEFAULT_WHOLE_REGION)
 
         self._tz = dt_util.get_time_zone(TIMEZONE)
         self._types: dict[int, str] = {}
@@ -160,7 +163,9 @@ class HZSULKDataUpdateCoordinator(DataUpdateCoordinator[dict[int, HZSEvent]]):
         events: dict[int, HZSEvent] = {}
         for raw in raw_events:
             event = self._parse_event(raw)
-            if event is None or event.distance_km > self.radius_km:
+            if event is None:
+                continue
+            if not self.whole_region and event.distance_km > self.radius_km:
                 continue
             # Ukončené události jen z časového okna, probíhající vždy
             if not event.active and (event.reported is None or event.reported < window_from):
@@ -169,8 +174,8 @@ class HZSULKDataUpdateCoordinator(DataUpdateCoordinator[dict[int, HZSEvent]]):
 
         await self._async_fill_units(events)
         _LOGGER.debug(
-            "HZSULK: %s událostí v kraji, %s v okruhu %s km", len(raw_events), len(events),
-            self.radius_km,
+            "HZSULK: %s událostí v kraji, %s zobrazeno (celý kraj=%s, okruh %s km)",
+            len(raw_events), len(events), self.whole_region, self.radius_km,
         )
         return events
 
