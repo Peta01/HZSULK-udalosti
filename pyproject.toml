@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hzsulk-events"
-version = "2.0.0"
+version = "2.1.0"
 description = "Home Assistant integration for HZSULK (firefighter/rescue events) in Czech Republic"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
     {name = "HZSULK Events Contributors", email = ""},
