@@ -135,3 +135,6 @@ config/
 # Project specific
 .devcontainer/
 *.code-workspace
+
+# Python
+.ruff_cache/
